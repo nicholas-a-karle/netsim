@@ -18,7 +18,10 @@ class social_network(nx.DiGraph):
                     self.add_edge(i, j)
 
     def clear_edges(self):
-        self.remove_edges_from(self.edges)
+        for i in range(len(self)):
+            for j in range(len(self)):
+                if self.has_edge(i, j):
+                    self.remove_edge(i, j)
 
     def set_social_parameters(self, transitivity = 0.1, reciprocity = 0.1, negative_transitivity = 0.1, negative_reciprocity = 0.1, random_additions = 0.1, random_removals = 0.1):
         self.social_transitivity = transitivity
@@ -292,6 +295,80 @@ class social_network(nx.DiGraph):
 
                     elif not self.has_edge(i, j) and self.has_edge(j, i):
                         numall = len(list(self.successors(i))) + len(list(self.predecessors(i)))
+                        # = sr * (1 / num succ + num pred)
+                        pp = self.social_reciprocity / numall
+                        # = nsr * (1 - 1 / num succ + num pred)
+                        pn = self.negative_social_reciprocity * (1 - 1 / numall)
+                        r = random.random()
+                        if r < pp:
+                            self.add_edge(i, j)
+                        elif r < pp + pn:
+                            self.remove_edge(j, i)
+
+    # reciprocity on full graph
+    def reciprocate_no_numall(self, use_edgelist = True):
+        # find all pairs of nodes i, j
+        # where edge[i, j] and not edge[i, j]:
+        #   on such edges:
+        #       depending on chance:
+        #           add edge[j, i]
+        #           or
+        #           del edge[i, j]
+        
+        # main issue: find all node pairs [i, j] where edge[i, j] != edge[j, i]
+
+        # two algos:
+        # O(|V|^2) vs. O(|E|)
+        # use edge list if |E| < 2*|V|^2
+        #
+        # 0 <= |E| <= |V| * (|V| - 1)
+        # N = |V|
+        #
+        # N * (N-1) < 2*N^2
+        # N^2 - N < 2*N^2 is always true
+        #
+        #use_edgelist = True #self.number_of_edges() < 2 * (len(self) ** 2)
+        if use_edgelist:
+            # |E| iterations, |E| checks
+            rem_es = []
+            add_es = []
+            for edge in self.edges:
+                # check inverse edge
+                if not self.has_edge(edge[1], edge[0]):
+                    numall = 1#len(list(self.successors(edge[1]))) + len(list(self.predecessors(edge[1])))
+                    # = sr * (1 / num succ + num pred)
+                    pp = self.social_reciprocity / numall
+                    # = nsr * (1 - 1 / num succ + num pred)
+                    pn = self.negative_social_reciprocity * (1 - 1 / numall)
+                    r = random.random()
+                    if r < pp:
+                        add_es.append((edge[1], edge[0]))
+                    elif r < pp + pn:
+                        rem_es.append((edge[0], edge[1]))
+            for edge in add_es:
+                self.add_edge(edge[1], edge[0])
+            for edge in rem_es:
+                self.remove_edge(edge[0], edge[1])
+
+        else:
+            # |V|^2 iterations, 2*|V|^2 checks
+            for i in range(len(self)):
+                for j in range(i + 1, len(self)):
+                    # check if [i, j] and not [j, i] or vice versa
+                    if self.has_edge(i, j) and not self.has_edge(j, i):
+                        numall = 1#len(list(self.successors(j))) + len(list(self.predecessors(j)))
+                        # = sr * (1 / num succ + num pred)
+                        pp = self.social_reciprocity / numall
+                        # = nsr * (1 - 1 / num succ + num pred)
+                        pn = self.negative_social_reciprocity * (1 - 1 / numall)
+                        r = random.random()
+                        if r < pp:
+                            self.add_edge(j, i)
+                        elif r < pp + pn:
+                            self.remove_edge(i, j)
+
+                    elif not self.has_edge(i, j) and self.has_edge(j, i):
+                        numall = 1#len(list(self.successors(i))) + len(list(self.predecessors(i)))
                         # = sr * (1 / num succ + num pred)
                         pp = self.social_reciprocity / numall
                         # = nsr * (1 - 1 / num succ + num pred)

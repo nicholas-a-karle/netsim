@@ -6,7 +6,6 @@ import time
 from sng import social_network
 
 if __name__ == "__main__":
-
     print("\n\nRunning...\n\n")
 
     # testing edgelist vs. non-edgelist reciprocity run
@@ -18,24 +17,39 @@ if __name__ == "__main__":
     g.set_social_parameters()
     g.add_nodes(num_nodes)
 
-    print(f"Density\t  EL T\t  AM T\t Diff\tRPI\tWinner")
     for i in range(precision + 1):
         density = i / precision
-        g.randomly_form_edges(density)
 
+
+        g.randomly_form_edges(density)
         start = time.time()
         g.reciprocate(True)
-        tel = time.time() - start
+        elnat = time.time() - start
 
+        g.clear_edges()
+        g.randomly_form_edges(density)
         start = time.time()
         g.reciprocate(False)
-        tam = time.time() - start
+        amnat = time.time() - start
 
-        diff = abs(tam - tel)
-        rpi = diff / max(tam, tel)
-        win = "EL" if (tel < tam) else "AM"
+        g.clear_edges()
+        g.randomly_form_edges(density)
+        start = time.time()
+        g.reciprocate_no_numall(True)
+        elnot = time.time() - start
 
-        print(f"{density:.2f} \t| {tel:.2f} \t| {tam:.2f} | {diff:.2f} | {rpi:.2f} |  {win}")
+        g.clear_edges()
+        g.randomly_form_edges(density)
+        start = time.time()
+        g.reciprocate_no_numall(False)
+        amnot = time.time() - start
+
+        elrpi = (elnat - elnot) / elnat if elnat != 0 else 0.0001
+        amrpi = (amnat - amnot) / amnat if amnat != 0 else 0.0001
+
+        print(f"{elnat:.2f} \t{elnot:.2f} \t{elrpi:.2f} \t|\t{amnat:.2f} \t{amnot:.2f} \t{amrpi:.2f}")
+
+        
 
 
     print("\n\nDone.\n\n")
