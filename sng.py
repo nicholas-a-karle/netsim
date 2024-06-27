@@ -10,6 +10,16 @@ class social_network(nx.DiGraph):
 
     # s0 -> s1 indicates s0 likes s1
 
+    def randomly_form_edges(self, form_chance = 0.1):
+        for i in range(len(self)):
+            for j in range(len(self)):
+                if i == j: continue
+                if random.random() < form_chance:
+                    self.add_edge(i, j)
+
+    def clear_edges(self):
+        self.remove_edges_from(self.edges)
+
     def set_social_parameters(self, transitivity = 0.1, reciprocity = 0.1, negative_transitivity = 0.1, negative_reciprocity = 0.1, random_additions = 0.1, random_removals = 0.1):
         self.social_transitivity = transitivity
         self.social_reciprocity = reciprocity
@@ -243,19 +253,25 @@ class social_network(nx.DiGraph):
         #use_edgelist = True #self.number_of_edges() < 2 * (len(self) ** 2)
         if use_edgelist:
             # |E| iterations, |E| checks
+            rem_es = []
+            add_es = []
             for edge in self.edges:
                 # check inverse edge
                 if not self.has_edge(edge[1], edge[0]):
-                    numall = len(self.successors(edge[1])) + len(self.predecessors(edge[1]))
+                    numall = len(list(self.successors(edge[1]))) + len(list(self.predecessors(edge[1])))
                     # = sr * (1 / num succ + num pred)
                     pp = self.social_reciprocity / numall
                     # = nsr * (1 - 1 / num succ + num pred)
                     pn = self.negative_social_reciprocity * (1 - 1 / numall)
                     r = random.random()
                     if r < pp:
-                        self.add_edge(edge[1], edge[0])
+                        add_es.append((edge[1], edge[0]))
                     elif r < pp + pn:
-                        self.remove_edge(edge[0], edge[1])
+                        rem_es.append((edge[0], edge[1]))
+            for edge in add_es:
+                self.add_edge(edge[1], edge[0])
+            for edge in rem_es:
+                self.remove_edge(edge[0], edge[1])
 
         else:
             # |V|^2 iterations, 2*|V|^2 checks
@@ -263,7 +279,7 @@ class social_network(nx.DiGraph):
                 for j in range(i + 1, len(self)):
                     # check if [i, j] and not [j, i] or vice versa
                     if self.has_edge(i, j) and not self.has_edge(j, i):
-                        numall = len(self.successors(j)) + len(self.predecessors(j))
+                        numall = len(list(self.successors(j))) + len(list(self.predecessors(j)))
                         # = sr * (1 / num succ + num pred)
                         pp = self.social_reciprocity / numall
                         # = nsr * (1 - 1 / num succ + num pred)
@@ -275,7 +291,7 @@ class social_network(nx.DiGraph):
                             self.remove_edge(i, j)
 
                     elif not self.has_edge(i, j) and self.has_edge(j, i):
-                        numall = len(self.successors(i)) + len(self.predecessors(i))
+                        numall = len(list(self.successors(i))) + len(list(self.predecessors(i)))
                         # = sr * (1 / num succ + num pred)
                         pp = self.social_reciprocity / numall
                         # = nsr * (1 - 1 / num succ + num pred)

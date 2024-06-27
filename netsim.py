@@ -1,216 +1,41 @@
 
+import sys
+
 import random
 import time
 from sng import social_network
 
 if __name__ == "__main__":
 
-    print("Running...")
+    print("\n\nRunning...\n\n")
 
-    rand_n_range = (100, 1000)
-    num_iterates = 5
-    num_runs = 2
+    # testing edgelist vs. non-edgelist reciprocity run
 
+    num_nodes = int(sys.argv[1])
+    precision = int(sys.argv[2])
 
-    rem = 0.1
-    add = 0.1
-    start = time.time()
+    g = social_network()
+    g.set_social_parameters()
+    g.add_nodes(num_nodes)
 
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions()
+    print(f"Density\t  EL T\t  AM T\t Diff\tRPI\tWinner")
+    for i in range(precision + 1):
+        density = i / precision
+        g.randomly_form_edges(density)
 
-    end = time.time()
+        start = time.time()
+        g.reciprocate(True)
+        tel = time.time() - start
 
-    time_0 = end - start
+        start = time.time()
+        g.reciprocate(False)
+        tam = time.time() - start
 
+        diff = abs(tam - tel)
+        rpi = diff / max(tam, tel)
+        win = "EL" if (tel < tam) else "AM"
 
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions_1()
-
-    end = time.time()
-
-    time_1 = end - start
-
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions_2()
-
-    end = time.time()
-
-    time_2 = end - start
-
-    print(f"\nA = {add}, R = {rem}")
-    print(f"V0: \t{time_0:.3f} seconds")
-    print(f"V1: \t{time_1:.3f} seconds")
-    print(f"V2: \t{time_2:.3f} seconds")
-
-    rem = 0.0
-    add = 0.1
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions()
-
-    end = time.time()
-
-    time_0 = end - start
+        print(f"{density:.2f} \t| {tel:.2f} \t| {tam:.2f} | {diff:.2f} | {rpi:.2f} |  {win}")
 
 
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions_1()
-
-    end = time.time()
-
-    time_1 = end - start
-
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions_2()
-
-    end = time.time()
-
-    time_2 = end - start
-
-    print(f"\nA = {add}, R = {rem}")
-    print(f"V0: \t{time_0:.3f} seconds")
-    print(f"V1: \t{time_1:.3f} seconds")
-    print(f"V2: \t{time_2:.3f} seconds")
-
-    rem = 0.1
-    add = 0.0
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions()
-
-    end = time.time()
-
-    time_0 = end - start
-
-
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions_1()
-
-    end = time.time()
-
-    time_1 = end - start
-
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions_2()
-
-    end = time.time()
-
-    time_2 = end - start
-
-    print(f"\nA = {add}, R = {rem}")
-    print(f"V0: \t{time_0:.3f} seconds")
-    print(f"V1: \t{time_1:.3f} seconds")
-    print(f"V2: \t{time_2:.3f} seconds")
-
-    rem = 0.0
-    add = 0.0
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions()
-
-    end = time.time()
-
-    time_0 = end - start
-
-
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions_1()
-
-    end = time.time()
-
-    time_1 = end - start
-
-    start = time.time()
-
-    for _ in range(num_iterates):
-        g = social_network()
-        g.set_social_parameters(random_additions=add, random_removals=rem)
-        num = random.randint(rand_n_range[0], rand_n_range[1])
-        g.add_nodes(num)
-        for _ in range(num_runs):
-            g.random_actions_2()
-
-    end = time.time()
-
-    time_2 = end - start
-
-    print(f"\nA = {add}, R = {rem}")
-    print(f"V0: \t{time_0:.3f} seconds")
-    print(f"V1: \t{time_1:.3f} seconds")
-    print(f"V2: \t{time_2:.3f} seconds")
-
-    print("\n\nDone")
-    
+    print("\n\nDone.\n\n")
