@@ -1,11 +1,14 @@
 
 import sys
+import os
 
 import random
 import time
 from sng import social_network
 
 if __name__ == "__main__":
+    os.system("cls||clear")
+    
     print("\n\nRunning...\n\n")
 
     # testing edgelist vs. non-edgelist reciprocity run
@@ -49,7 +52,11 @@ if __name__ == "__main__":
 
         print(f"{elnat:.2f} \t{elnot:.2f} \t{elrpi:.2f} \t|\t{amnat:.2f} \t{amnot:.2f} \t{amrpi:.2f}")
 
-        
-
-
     print("\n\nDone.\n\n")
+    input("Press Enter to Clear Console")
+    os.system("cls||clear")
+
+
+
+
+

@@ -261,11 +261,10 @@ class social_network(nx.DiGraph):
             for edge in self.edges:
                 # check inverse edge
                 if not self.has_edge(edge[1], edge[0]):
-                    numall = len(list(self.successors(edge[1]))) + len(list(self.predecessors(edge[1])))
                     # = sr * (1 / num succ + num pred)
-                    pp = self.social_reciprocity / numall
+                    pp = self.social_reciprocity / self.degree(edge[1])
                     # = nsr * (1 - 1 / num succ + num pred)
-                    pn = self.negative_social_reciprocity * (1 - 1 / numall)
+                    pn = self.negative_social_reciprocity * (1 - 1 /self.degree(edge[1]))
                     r = random.random()
                     if r < pp:
                         add_es.append((edge[1], edge[0]))
@@ -282,11 +281,10 @@ class social_network(nx.DiGraph):
                 for j in range(i + 1, len(self)):
                     # check if [i, j] and not [j, i] or vice versa
                     if self.has_edge(i, j) and not self.has_edge(j, i):
-                        numall = len(list(self.successors(j))) + len(list(self.predecessors(j)))
                         # = sr * (1 / num succ + num pred)
-                        pp = self.social_reciprocity / numall
+                        pp = self.social_reciprocity / self.degree(j)
                         # = nsr * (1 - 1 / num succ + num pred)
-                        pn = self.negative_social_reciprocity * (1 - 1 / numall)
+                        pn = self.negative_social_reciprocity * (1 - 1 / self.degree(j))
                         r = random.random()
                         if r < pp:
                             self.add_edge(j, i)
@@ -294,11 +292,10 @@ class social_network(nx.DiGraph):
                             self.remove_edge(i, j)
 
                     elif not self.has_edge(i, j) and self.has_edge(j, i):
-                        numall = len(list(self.successors(i))) + len(list(self.predecessors(i)))
                         # = sr * (1 / num succ + num pred)
-                        pp = self.social_reciprocity / numall
+                        pp = self.social_reciprocity / self.degree(i)
                         # = nsr * (1 - 1 / num succ + num pred)
-                        pn = self.negative_social_reciprocity * (1 - 1 / numall)
+                        pn = self.negative_social_reciprocity * (1 - 1 / self.degree(i))
                         r = random.random()
                         if r < pp:
                             self.add_edge(i, j)
